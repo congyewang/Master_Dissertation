@@ -2,10 +2,12 @@ import os
 import time
 
 import pandas as pd
+import pygame.midi
 import requests
 from mido import MidiFile
+from opycleid.musicmonoids import PRL_Group
+from opycleid.musicmonoids import TI_Group_Triads
 from tqdm import tqdm
-import pygame.midi
 
 
 class Toolbox:
@@ -180,3 +182,93 @@ class Toolbox:
         exec(str_note)
         del player
         pygame.midi.quit()
+
+    def convert_num2str(self, num: int) -> str:
+        """
+        Tune the note to the first minor group to ignore the octave,
+            which is used to convert to its major chord.
+        :param num: The note values, C4 is 60
+        :return: The string form of chord
+        """
+        d = {
+            0: "C_M",
+            1: "Db_M",
+            2: "D_M",
+            3: "Eb_M",
+            4: "E_M",
+            5: "F_M",
+            6: "Gb_M",
+            7: "G_M",
+            8: "Ab_M",
+            9: "A_M",
+            10: "Bb_M",
+            11: "B_M"
+        }
+
+        while True:
+            if num == 0:
+                break
+            elif 60 <= num <= 71:
+                break
+            else:
+                if num < 60:
+                    num += 12
+                elif num > 71:
+                    num-= 12
+
+        if num == 0:
+            res = None
+        else:
+            remainder = num % 60
+            res = d[remainder]
+
+        return res
+
+    def generate_group_data(self, df: pd.DataFrame):
+        """
+        Get group cycle data.
+        :param df: Dataframe of midi files information including notes, durations, and channels.
+        :return: Dataframe of PRL and T/I group cycle data.
+        """
+
+        # Check Parameters
+        if not "note" in df.columns:
+            raise ValueError("Dataframe is lack of note")
+        if not "time" in df.columns:
+            raise ValueError("Dataframe is lack of note")
+        if not "channel" in df.columns:
+            raise ValueError("Dataframe is lack of channel")
+
+        # Convert Notes to Pitch
+        df["pitch"] = df["note"].apply(self.convert_num2str)
+        # Delete rows including NaN values
+        df = df.dropna()
+        # Initialise group objects
+        prl_group = PRL_Group()
+        ti_group = TI_Group_Triads()
+        # Declare Variable
+        list_prl = []
+        list_ti = []
+        list_channel = []
+
+        for i in df["channel"].unique():
+            for j in range(0, len(df["pitch"]) - 1):
+                res_prl = prl_group.get_operation(df.iloc[j]["pitch"], df.iloc[j + 1]["pitch"])
+                res_ti = ti_group.get_operation(df.iloc[j]["pitch"], df.iloc[j + 1]["pitch"])
+                # Check res is not the null list
+                if res_prl:
+                    if res_prl[0] != "id_.":
+                        list_prl.append(res_prl[0])
+                if res_ti:
+                    if res_ti[0] != "id_.":
+                        list_ti.append(res_ti[0])
+                        list_channel.append(f"{i}")
+
+        dict_group_data = {
+            "prl": list_prl,
+            "ti": list_ti,
+            "channel": list_channel
+        }
+        df_group_data = pd.DataFrame(dict_group_data)
+
+        return df_group_data

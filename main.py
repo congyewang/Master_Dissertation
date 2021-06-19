@@ -58,10 +58,30 @@ def play_csv() -> None:
     str_notation = toolbox.generate_str_notation(note, duration, channel)
     toolbox.play(str_notation)
 
+def get_group_data() -> None:
+    toolbox = Toolbox()
+
+    artwork_num = []
+    data_dir = "./Data"
+    group_data_dir = "./Group"
+
+    # Check if there are folders in the environment
+    if not os.path.exists(group_data_dir):
+        os.makedirs(group_data_dir)
+
+    for i in range(15):
+        artwork_num.append(f"BMV{i + 772}")
+
+    for j in artwork_num:
+        exec(f"df_{j} = pd.read_csv('{data_dir}/{j}.csv')")
+        exec(f"group_{j} = toolbox.generate_group_data(df_{j})")
+        exec(f"group_{j}.to_csv('{group_data_dir}/{j}.csv', index=False)")
+
 
 def main():
     # generate_data()
-    play_csv()
+    # play_csv()
+    get_group_data()
 
 
 if __name__ == "__main__":
