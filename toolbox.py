@@ -206,7 +206,7 @@ class Toolbox:
         }
 
         while True:
-            if num == 0:
+            if 0 <= num <= 20:
                 break
             elif 60 <= num <= 71:
                 break
@@ -214,9 +214,9 @@ class Toolbox:
                 if num < 60:
                     num += 12
                 elif num > 71:
-                    num-= 12
+                    num -= 12
 
-        if num == 0:
+        if 0 <= num <= 20:
             res = None
         else:
             remainder = num % 60
@@ -262,7 +262,7 @@ class Toolbox:
                 if res_ti:
                     if res_ti[0] != "id_.":
                         list_ti.append(res_ti[0])
-                        list_channel.append(f"{i}")
+                        list_channel.append(i)
 
         dict_group_data = {
             "prl": list_prl,
