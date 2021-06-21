@@ -2,7 +2,7 @@ import os
 
 import pandas as pd
 
-from toolbox import Toolbox
+from toolbox.toolbox import Toolbox
 
 toolbox = Toolbox()
 
@@ -30,16 +30,16 @@ def generate_data():
     )
 
     # Download midi files
-    midi_dir = "./Midi"
+    midi_dir = "./Data/Midi"
     toolbox.get_mid(midi_dir, artwork_num2url)
 
     # Parse strings to extracting track data from midi files
-    midi_dir = "./Midi"
+    midi_dir = "./Data/Midi"
     for i in list(artwork_num2url.keys()):
         exec(f"df_{i} = toolbox.get_track_data('{midi_dir}/{i}.mid')")
 
     # Convert dataframe of track to notes and their durations
-    dir_data = "./Data"
+    dir_data = "./Data/CSV/Note"
     # Check if there are folders in the environment
     if not os.path.exists(dir_data):
         os.makedirs(dir_data)
@@ -50,7 +50,7 @@ def generate_data():
 
 
 def play_csv() -> None:
-    data_dir = "./Data"
+    data_dir = "./Data/CSV/Note"
     df = pd.read_csv(f"{data_dir}/BMV772.csv")
     note = df["note"]
     duration = df["time"]
@@ -62,8 +62,8 @@ def get_group_data() -> None:
     toolbox = Toolbox()
 
     artwork_num = []
-    data_dir = "./Data"
-    group_data_dir = "./Group"
+    data_dir = "./Data/CSV/Note"
+    group_data_dir = "./Data/CSV/Group"
 
     # Check if there are folders in the environment
     if not os.path.exists(group_data_dir):
