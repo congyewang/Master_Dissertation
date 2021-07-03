@@ -29,6 +29,10 @@ This folder contains the data after the mid file extracts notes, durations and c
 
 This folder includes the group transformation data assuming that individual notes are stressed as the form of their major triads.
 
+#### 2.1.2.3
+
+This folder includes the binary data ignoring quiet notes, octave, and duration.
+
 ### 2.1.3 DataBases
 
 This folder contains two sqlite3 databases, namely `note.db` and `group.db`.

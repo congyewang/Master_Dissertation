@@ -58,9 +58,8 @@ def play_csv() -> None:
     str_notation = toolbox.generate_str_notation(note, duration, channel)
     toolbox.play(str_notation)
 
-def get_group_data() -> None:
-    toolbox = Toolbox()
 
+def get_group_data() -> None:
     artwork_num = []
     data_dir = "./Data/CSV/Note"
     group_data_dir = "./Data/CSV/Group"
@@ -78,10 +77,28 @@ def get_group_data() -> None:
         exec(f"group_{j}.to_csv('{group_data_dir}/{j}.csv', index=False)")
 
 
+def output2binary():
+    artwork_num = []
+    data_dir = "./Data/CSV/Note"
+    binary_data_dir = "./Data/CSV/Binary"
+    # Check if there are folders of rootdir in the environment
+    if not os.path.exists(binary_data_dir):
+        os.makedirs(binary_data_dir)
+
+    for i in range(15):
+        artwork_num.append(f"BMV{i + 772}")
+
+    for j in artwork_num:
+        exec(f"df_{j} = pd.read_csv('{data_dir}/{j}.csv')")
+        exec(f"binary_{j} = toolbox.trans2binary(df_{j})")
+        exec(f"binary_{j}.to_csv('{binary_data_dir}/{j}.csv', index=False)")
+
+
 def main():
     # generate_data()
     # play_csv()
-    get_group_data()
+    # get_group_data()
+    output2binary()
 
 
 if __name__ == "__main__":

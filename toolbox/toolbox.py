@@ -1,6 +1,7 @@
 import os
 import time
 
+import numpy as np
 import pandas as pd
 import pygame.midi
 import requests
@@ -272,3 +273,114 @@ class Toolbox:
         df_group_data = pd.DataFrame(dict_group_data)
 
         return df_group_data
+
+    def ignore_octave(self, num: int) -> int:
+        """
+        ignore octave, and convert note value to [0, 11]
+        :param num: note value, [21, 108]
+        :return: relative value
+        """
+        while True:
+            if 0 <= num <= 20:
+                break
+            elif 60 <= num <= 71:
+                break
+            else:
+                if num < 60:
+                    num += 12
+                elif num > 71:
+                    num -= 12
+
+        if 0 <= num <= 20:
+            res = None
+        else:
+            remainder = (num % 60)
+            res = remainder
+
+        return res
+
+    def trans2binary(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Ignoring airs, octaves and channels, the notes are converted to unison octaves and converted to binary matrix.
+        :param df: Dataframe of midi files information including notes, durations, and channels.
+        :return: Dataframe with binary form
+        """
+        # Check Parameters
+        if not "note" in df.columns:
+            raise ValueError("Dataframe is lack of note")
+        if not "time" in df.columns:
+            raise ValueError("Dataframe is lack of note")
+        if not "channel" in df.columns:
+            raise ValueError("Dataframe is lack of channel")
+
+        if df["channel"].unique().shape[0] == 1:
+            time_cumsum = []
+            s = 0
+            for i in df["time"]:
+                s += i
+                time_cumsum.append(0)
+
+            df["time_cumsum"] = time_cumsum
+
+        elif df["channel"].unique().shape[0] == 2:
+            df_0 = df.query("channel == 0")
+            df_1 = df.query("channel == 1")
+
+            time_cumsum_0 = []
+            s0 = 0
+            for i in df_0["time"]:
+                s0 += i
+                time_cumsum_0.append(s0)
+
+            time_cumsum_1 = []
+            s = 0
+            for i in df_1["time"]:
+                s += i
+                time_cumsum_1.append(s)
+
+            df["time_cumsum"] = time_cumsum_0 + time_cumsum_1
+
+        else:
+            raise ValueError("Please check the value of channel")
+
+        df_sorted = df.sort_values("time_cumsum")
+
+        df_sorted_delete_quiet = df_sorted[~df_sorted['note'].isin([0])]
+
+        df_sorted_delete_quiet["note_ignore_octave"] = df_sorted_delete_quiet["note"].apply(self.ignore_octave)
+
+        indicator = []
+
+        for i in range(df_sorted_delete_quiet["time_cumsum"].shape[0] - 1):
+            if df_sorted_delete_quiet["time_cumsum"].iloc[i] == df_sorted_delete_quiet["time_cumsum"].iloc[i + 1]:
+                indicator.append(1)
+            else:
+                indicator.append(0)
+
+        indicator.append(0)
+
+        df_sorted_delete_quiet["indicator"] = indicator
+
+        note_channel_push_back = []
+        skip_list = []
+
+        for i in range(df_sorted_delete_quiet.shape[0]):
+            if i not in skip_list:
+                if df_sorted_delete_quiet["indicator"].iloc[i] == 1:
+                    skip_list.append(i + 1)
+                else:
+                    note_channel_push_back.append(df_sorted_delete_quiet["note_ignore_octave"].iloc[i])
+            else:
+                note_channel_push_back.append([df_sorted_delete_quiet["note_ignore_octave"].iloc[i - 1],
+                                               df_sorted_delete_quiet["note_ignore_octave"].iloc[i]])
+
+        chord = np.zeros([12, len(note_channel_push_back)], int)
+
+        for i, j in enumerate(note_channel_push_back):
+            if type(j) == list:
+                for k in j:
+                    chord[k, i] = 1
+            else:
+                chord[j, i] = 1
+
+        return pd.DataFrame(chord)
