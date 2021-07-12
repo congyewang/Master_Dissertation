@@ -78,7 +78,7 @@ class Toolbox:
         tick = tempo / (mid.ticks_per_beat * 1000000)
         time_by_second = [j * tick for j in time_by_tick]
 
-        d = {"t": _type, "note": note, "time": time_by_second, "channel": channel}
+        d = {"t.py": _type, "note": note, "time": time_by_second, "channel": channel}
         df = pd.DataFrame(d)
 
         return df
