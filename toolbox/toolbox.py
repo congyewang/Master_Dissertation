@@ -384,3 +384,64 @@ class Toolbox:
                 chord[j, i] = 1
 
         return pd.DataFrame(chord)
+
+    def operator(self, state: int, action: int) -> int:
+        """
+        Define the operator of binary data, this operation can be reversed
+        :param state: The state of notes, which includes {0, 1}
+        :param action: The action of notes, which includes {0, 1}
+        :return: The next state of notes, which includes {0, 1}
+        """
+        if state not in [0, 1]:
+            raise ValueError("State Value Error")
+        if action not in [0, 1]:
+            raise ValueError("State Value Error")
+
+        if state == 0:
+            if action == 0:
+                res = 0
+            elif action == 1:
+                res = 1
+        elif state == 1:
+            if action == 0:
+                res = 1
+            elif action == 1:
+                res = 0
+
+        return res
+
+    def calculate_list(self, operator: any, l1: list, l2: list) -> list:
+        """
+        Compute two binary lists of the same length at operator function
+        :param operator: The operator of binary data, which is a function object
+        :param l1: The binary list, which includes {0, 1}
+        :param l2: The binary list, which includes {0, 1}
+        :return: The binary list, which includes {0, 1}
+        """
+        if len(l1) != len(l2):
+            raise ValueError("Shape Error")
+
+        res_list = []
+
+        for i in range(len(l1)):
+            res_list.append(operator(l1[i], l2[i]))
+
+        return res_list
+
+    def stave2action(self, df: pd.DataFrame, operator: any) -> pd.DataFrame:
+        action_matrix = np.zeros([df.shape[0], df.shape[1] - 1])
+
+        for i in range(df.shape[1] - 1):
+            action = self.calculate_list(operator, df.iloc[:, i], df.iloc[:, i + 1])
+            action_matrix[:, i] = action
+
+        df_res = pd.DataFrame(action_matrix).astype(np.uint8)
+
+        return df_res
+
+
+if __name__ == "__main__":
+    t = Toolbox()
+    df = pd.read_csv("../Data/CSV/Binary/BMV772.csv", header=0)
+    r = t.stave2action(df, t.operator)
+    print(r.head())

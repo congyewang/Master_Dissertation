@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.append("..")
-from env.myenv import MyEnv
+from env.myenv_v0 import MyEnv
 import pytest
 
 

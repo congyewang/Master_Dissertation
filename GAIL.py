@@ -26,8 +26,12 @@ def con2float64(filepath):
     exec(str_command)
 
 
-# Test
+# Initialize Environment
 env = gym.make('myenv-v0')
+expert_df = pd.read_csv(f"./Data/CSV/Binary/BMV772.csv")
+env.send_expert_data(expert_df)
+
+# Test
 n_steps = 10
 for _ in range(n_steps):
     # Random action
@@ -37,7 +41,6 @@ for _ in range(n_steps):
     print(obs, reward, done, info)
 
 # Generate expert trajectories (train expert)
-env = gym.make('myenv-v0')
 model = TRPO("MlpPolicy", env, verbose=1, tensorboard_log="./trpo_myenv_tensorboard/")
 model.learn(total_timesteps=25000)
 generate_expert_traj(model, 'expert_trpo', n_episodes=100)
@@ -52,7 +55,6 @@ model.save("gail_trpo")
 
 model = GAIL.load("gail_trpo")
 
-env = gym.make('myenv-v0')
 obs = env.reset()
 s = 0
 stave = np.zeros([12, env.L])

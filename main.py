@@ -93,12 +93,29 @@ def output2binary():
         exec(f"binary_{j} = toolbox.trans2binary(df_{j})")
         exec(f"binary_{j}.to_csv('{binary_data_dir}/{j}.csv', index=False)")
 
+def generate_action():
+    artwork_num = []
+    binary_data_dir = "./Data/CSV/Binary"
+    action_data_dir = "./Data/CSV/Action"
+    # Check if there are folders of rootdir in the environment
+    if not os.path.exists(action_data_dir):
+        os.makedirs(action_data_dir)
+
+    for i in range(15):
+        artwork_num.append(f"BMV{i + 772}")
+
+    for j in artwork_num:
+        exec(f"binary_{j} = pd.read_csv('{binary_data_dir}/{j}.csv')")
+        exec(f"action_{j} = toolbox.stave2action(binary_{j}, toolbox.operator)")
+        exec(f"action_{j}.to_csv('{action_data_dir}/{j}.csv', index=False)")
+
 
 def main():
     # generate_data()
     # play_csv()
     # get_group_data()
-    output2binary()
+    # output2binary()
+    generate_action()
 
 
 if __name__ == "__main__":
