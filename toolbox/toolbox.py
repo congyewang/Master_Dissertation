@@ -441,7 +441,10 @@ class Toolbox:
 
 
 if __name__ == "__main__":
-    t = Toolbox()
+    # t = Toolbox()
     df = pd.read_csv("../Data/CSV/Binary/BMV772.csv", header=0)
-    r = t.stave2action(df, t.operator)
-    print(r.head())
+    # r = t.stave2action(df, t.operator)
+    s0 = [1,0,1,0]
+    a  = [1,1,0,0]
+    s1 = [0,1,1,0]
+

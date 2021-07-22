@@ -46,8 +46,8 @@ model.learn(total_timesteps=25000)
 generate_expert_traj(model, 'expert_trpo', n_episodes=100)
 
 # Load the expert dataset
-con2float64("./expert_trpo.npz")
-dataset = ExpertDataset(expert_path='expert_trpo.npz', traj_limitation=100, verbose=1)
+con2float64("Data/Temp/expert_trpo.npz")
+dataset = ExpertDataset(expert_path='Data/Temp/expert_trpo.npz', traj_limitation=100, verbose=1)
 
 model = GAIL('MlpPolicy', env, dataset, verbose=1, tensorboard_log="./gail_myenv_tensorboard/")
 model.learn(total_timesteps=1000)
@@ -68,4 +68,4 @@ while True:
     if s > (stave.shape[1] - 1):
         break
 
-pd.DataFrame(stave).astype(np.uint8)
+pd.DataFrame(stave).astype(np.uint8).to_csv("gail.csv", index=False)
