@@ -1,23 +1,21 @@
-import os
-import music21 as m21
-from music21 import converter, instrument, note, chord
 import glob
-import numpy
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, LSTM, Activation
-from keras.utils import np_utils
-from keras.callbacks import ModelCheckpoint
-import keras
 
+import music21 as m21
+import numpy
+from keras.callbacks import ModelCheckpoint
+from keras.layers import Dense, Dropout, LSTM, Activation
+from keras.models import Sequential
+from keras.utils import np_utils
+from music21 import converter, instrument, note, chord
 
 notes = []
-for file in glob.glob("./Data/Midi/BMV772.mid"):
+for file in glob.glob("./Data/Midi/*.mid"):
     midi = converter.parse(file)
     notes_to_parse = None
     parts = instrument.partitionByInstrument(midi)
-    if parts: # file has instrument parts
+    if parts:  # file has instrument parts
         notes_to_parse = parts.parts[0].recurse()
-    else: # file has notes in a flat structure
+    else:  # file has notes in a flat structure
         notes_to_parse = midi.flat.notes
     for element in notes_to_parse:
         if isinstance(element, note.Note):
@@ -25,7 +23,7 @@ for file in glob.glob("./Data/Midi/BMV772.mid"):
         elif isinstance(element, chord.Chord):
             notes.append('.'.join(str(n) for n in element.normalOrder))
 
-n_vocab = 37
+n_vocab = 71
 
 sequence_length = 100
 # get all pitch names
@@ -77,7 +75,7 @@ model.save('./Model/Complete/LSTM.h5')
 
 # model = keras.models.load_model('./Model/Complete/LSTM.h5')
 
-start = numpy.random.randint(0, len(network_input)-1)
+start = numpy.random.randint(0, len(network_input) - 1)
 
 int_to_note = dict((number, note) for number, note in enumerate(pitchnames))
 
@@ -124,4 +122,4 @@ for pattern in prediction_output:
     offset += 0.5
 
 midi_stream = m21.stream.Stream(output_notes)
-midi_stream.write('midi', fp='./Data/Generate/LSTM/BWV772_Imitation.mid')
+midi_stream.write('midi', fp='./Data/Generate/LSTM/BWV_Imitation.mid')

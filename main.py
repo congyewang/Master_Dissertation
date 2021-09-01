@@ -13,7 +13,7 @@ def generate_data():
     url = []
 
     for i in range(14):
-        artwork_num.append(f"BMV{i + 772}")
+        artwork_num.append(f"BWV{i + 772}")
 
     for i in range(14):
         if i < 9:
@@ -25,7 +25,7 @@ def generate_data():
 
     artwork_num2url.update(
         {
-            "BMV786": "https://www.8notes.com/school/midi/piano/bach_invention_15_bwv_786.mid"
+            "BWV786": "https://www.8notes.com/school/midi/piano/bach_invention_15_bwv_786.mid"
         }
     )
 
@@ -51,7 +51,7 @@ def generate_data():
 
 def play_csv() -> None:
     data_dir = "./Data/CSV/Note"
-    df = pd.read_csv(f"{data_dir}/BMV772.csv")
+    df = pd.read_csv(f"{data_dir}/BWV772.csv")
     note = df["note"]
     duration = df["time"]
     channel = df["channel"]
@@ -69,7 +69,7 @@ def get_group_data() -> None:
         os.makedirs(group_data_dir)
 
     for i in range(15):
-        artwork_num.append(f"BMV{i + 772}")
+        artwork_num.append(f"BWV{i + 772}")
 
     for j in artwork_num:
         exec(f"df_{j} = pd.read_csv('{data_dir}/{j}.csv')")
@@ -86,7 +86,7 @@ def output2binary():
         os.makedirs(binary_data_dir)
 
     for i in range(15):
-        artwork_num.append(f"BMV{i + 772}")
+        artwork_num.append(f"BWV{i + 772}")
 
     for j in artwork_num:
         exec(f"df_{j} = pd.read_csv('{data_dir}/{j}.csv')")
@@ -102,7 +102,7 @@ def generate_action():
         os.makedirs(action_data_dir)
 
     for i in range(15):
-        artwork_num.append(f"BMV{i + 772}")
+        artwork_num.append(f"BWV{i + 772}")
 
     for j in artwork_num:
         exec(f"binary_{j} = pd.read_csv('{binary_data_dir}/{j}.csv')")

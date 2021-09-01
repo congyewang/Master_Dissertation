@@ -1,38 +1,19 @@
 import sys
 
-import pandas as pd
-
 sys.path.append('./')
 import gym
-import numpy as np
 import env
 from stable_baselines import GAIL
 from stable_baselines.gail import ExpertDataset, generate_expert_traj
 from stable_baselines import TRPO
-
-
-def con2float64(filepath):
-    str_command = f'np.savez("{filepath}",'
-    zf = np.load(filepath)
-
-    for _i in zf.files:
-        if _i != "episode_returns" or "episode_starts":
-            str_command += f'{_i}=zf["{_i}"].astype(np.float64),'
-        else:
-            str_command = f'{_i}=zf["{_i}"],'[:-1]
-
-    str_command = str_command[:-1] + ")"
-
-    exec(str_command)
+import tensorflow as tf
 
 
 # Initialize Environment
 env = gym.make('myenv-v0')
-expert_df = pd.read_csv(f"./Data/CSV/Binary/BMV772.csv")
-env.send_expert_data(expert_df)
 
 # Test
-n_steps = 10
+n_steps = 2
 for _ in range(n_steps):
     # Random action
     obs = env.reset()
@@ -41,31 +22,44 @@ for _ in range(n_steps):
     print(obs, reward, done, info)
 
 # Generate expert trajectories (train expert)
-model = TRPO("MlpPolicy", env, verbose=1, tensorboard_log="./trpo_myenv_tensorboard/")
-model.learn(total_timesteps=25000)
-generate_expert_traj(model, 'expert_trpo', n_episodes=100)
+g_TRPO = tf.Graph()
+sess_TRPO = tf.Session(graph=g_TRPO)
+with sess_TRPO.as_default():
+    with g_TRPO.as_default():
+        model = TRPO("MlpPolicy", env, verbose=1, tensorboard_log="./Model/Temp/GAIL/Logs/TRPO/Expert_TRPO")
+        # model.learn(total_timesteps=25000)
+        generate_expert_traj(model, './Model/Temp/GAIL/Expert_TRPO', n_timesteps=100, n_episodes=10)
 
 # Load the expert dataset
-con2float64("Data/Temp/expert_trpo.npz")
-dataset = ExpertDataset(expert_path='Data/Temp/expert_trpo.npz', traj_limitation=100, verbose=1)
 
-model = GAIL('MlpPolicy', env, dataset, verbose=1, tensorboard_log="./gail_myenv_tensorboard/")
-model.learn(total_timesteps=1000)
-model.save("gail_trpo")
+dataset = ExpertDataset(expert_path='./Model/Temp/GAIL/Expert_TRPO/Expert_TRPO.npz', traj_limitation=10, verbose=1)
 
-model = GAIL.load("gail_trpo")
+g_GAIL = tf.Graph()
+sess_GAIL = tf.Session(graph=g_GAIL)
+with sess_GAIL.as_default():
+    with g_GAIL.as_default():
+        model = GAIL('MlpPolicy', env, dataset, verbose=1, tensorboard_log="./Model/Temp/GAIL/Logs/GAIL")
+        # Note: in practice, you need to train for 1M steps to have a working policy
+        model.learn(total_timesteps=1000)
+        model.save("./Model/Temp/GAIL/Expert_TRPO/")
 
-obs = env.reset()
-s = 0
-stave = np.zeros([12, env.L])
-while True:
-    action, _states = model.predict(obs)
-    obs, rewards, dones, info = env.step(action)
-    if dones:
-        stave[:, s] = obs
-        s += 1
-        env.reset()
-    if s > (stave.shape[1] - 1):
-        break
+del model # remove to demonstrate saving and loading
 
-pd.DataFrame(stave).astype(np.uint8).to_csv("gail.csv", index=False)
+g_GAIL_prediction=tf.Graph()
+sess_GAIL_prediction = tf.Session(graph=g_GAIL)
+with sess_GAIL.as_default():
+    with g_GAIL.as_default():
+        model = GAIL.load("gail_pendulum")
+
+        env = gym.make('Pendulum-v0')
+        obs = env.reset()
+        s = 0
+        note_list = []
+        while True:
+            action, _states = model.predict(obs)
+            obs, rewards, dones, info = env.step(action)
+            note_list.append(obs[-1])
+            env.render()
+            s += 1
+            if s > 500:
+                break

@@ -2,7 +2,7 @@
 
 ---
 
-This is my master's thesis at Lancaster University.
+This is my master's dissertation at Lancaster University.
 
 
 # 2 Notation
@@ -32,19 +32,6 @@ This folder includes the group transformation data assuming that individual note
 #### 2.1.2.3
 
 This folder includes the binary data ignoring quiet notes, octave, and duration.
-
-### 2.1.3 DataBases
-
-This folder contains two sqlite3 databases, namely `note.db` and `group.db`.
-
-```python
-import sqlalchemy as sqla
-import pandas as pd
-
-note_db = sqla.create_engine("sqlite:///Data/DataBases/note.db")
-
-df_BMV772 = pd.read_sql("select * from main.BMV772", note_db)
-```
 
 ## 2.2 Tests Folder
 

@@ -1,6 +1,7 @@
+import glob
 import os
 import time
-
+import requests
 import numpy as np
 import pandas as pd
 import pygame.midi
@@ -439,12 +440,214 @@ class Toolbox:
 
         return df_res
 
+    def binary_to_int(self, binary_list: list) -> int:
+        if type(binary_list) != list:
+            binary_list = list(binary_list)
+
+        if binary_list == [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]:
+            res = 0
+        elif binary_list == [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]:
+            res = 1
+        elif binary_list == [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]:
+            res = 2
+        elif binary_list == [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]:
+            res = 3
+        elif binary_list == [1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]:
+            res = 4
+        elif binary_list == [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]:
+            res = 5
+        elif binary_list == [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]:
+            res = 6
+        elif binary_list == [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]:
+            res = 7
+        elif binary_list == [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0]:
+            res = 8
+        elif binary_list == [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]:
+            res = 9
+        elif binary_list == [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]:
+            res = 10
+        elif binary_list == [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]:
+            res = 11
+        elif binary_list == [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]:
+            res = 12
+        elif binary_list == [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]:
+            res = 13
+        elif binary_list == [0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]:
+            res = 14
+        elif binary_list == [0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]:
+            res = 15
+        elif binary_list == [0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]:
+            res = 16
+        elif binary_list == [0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]:
+            res = 17
+        elif binary_list == [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]:
+            res = 18
+        elif binary_list == [0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0]:
+            res = 19
+        elif binary_list == [0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]:
+            res = 20
+        elif binary_list == [0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]:
+            res = 21
+        elif binary_list == [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]:
+            res = 22
+        elif binary_list == [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]:
+            res = 23
+        elif binary_list == [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]:
+            res = 24
+        elif binary_list == [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]:
+            res = 25
+        elif binary_list == [0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0]:
+            res = 26
+        elif binary_list == [0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0]:
+            res = 27
+        elif binary_list == [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0]:
+            res = 28
+        elif binary_list == [0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0]:
+            res = 29
+        elif binary_list == [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0]:
+            res = 30
+        elif binary_list == [0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0]:
+            res = 31
+        elif binary_list == [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0]:
+            res = 32
+        elif binary_list == [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1]:
+            res = 33
+        elif binary_list == [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]:
+            res = 34
+        elif binary_list == [0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0]:
+            res = 35
+        elif binary_list == [0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0]:
+            res = 36
+        elif binary_list == [0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0]:
+            res = 37
+        elif binary_list == [0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0]:
+            res = 38
+        elif binary_list == [0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0]:
+            res = 39
+        elif binary_list == [0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0]:
+            res = 40
+        elif binary_list == [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0]:
+            res = 41
+        elif binary_list == [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1]:
+            res = 42
+        elif binary_list == [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]:
+            res = 43
+        elif binary_list == [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0]:
+            res = 44
+        elif binary_list == [0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0]:
+            res = 45
+        elif binary_list == [0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0]:
+            res = 46
+        elif binary_list == [0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0]:
+            res = 47
+        elif binary_list == [0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0]:
+            res = 48
+        elif binary_list == [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0]:
+            res = 49
+        elif binary_list == [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1]:
+            res = 50
+        elif binary_list == [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]:
+            res = 51
+        elif binary_list == [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0]:
+            res = 52
+        elif binary_list == [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0]:
+            res = 53
+        elif binary_list == [0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0]:
+            res = 54
+        elif binary_list == [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0]:
+            res = 55
+        elif binary_list == [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0]:
+            res = 56
+        elif binary_list == [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1]:
+            res = 57
+        elif binary_list == [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]:
+            res = 58
+        elif binary_list == [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0]:
+            res = 59
+        elif binary_list == [0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0]:
+            res = 60
+        elif binary_list == [0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0]:
+            res = 61
+        elif binary_list == [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0]:
+            res = 62
+        elif binary_list == [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]:
+            res = 63
+        elif binary_list == [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0]:
+            res = 64
+        elif binary_list == [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0]:
+            res = 65
+        elif binary_list == [0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0]:
+            res = 66
+        elif binary_list == [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0]:
+            res = 67
+        elif binary_list == [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1]:
+            res = 68
+        elif binary_list == [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]:
+            res = 69
+        elif binary_list == [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0]:
+            res = 70
+        elif binary_list == [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0]:
+            res = 71
+        elif binary_list == [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1]:
+            res = 72
+        elif binary_list == [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]:
+            res = 73
+        elif binary_list == [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0]:
+            res = 74
+        elif binary_list == [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1]:
+            res = 75
+        elif binary_list == [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]:
+            res = 76
+        elif binary_list == [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1]:
+            res = 77
+        elif binary_list == [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]:
+            res = 78
+        else:
+            raise ValueError
+
+        return res
+
+    def convert_binary2int(self, filepath: str) -> list:
+        notes = []
+        for file in glob.glob(filepath):
+            notes.extend(pd.read_csv(file).apply(self.binary_to_int, axis=0).tolist())
+
+        return notes
+
+    def generate_action_table(self):
+        s = 1
+        for i in range(12):
+            init_list = [0] * 12
+            init_list[i] = 1
+            print(f"{s} & {init_list}\\\\")
+            s += 1
+            for j in range(i, 12):
+                if i != j:
+                    init_list = [0] * 12
+                    init_list[i] = 1
+                    init_list[j] = 1
+                    print(f"{s} & {init_list}\\\\")
+                    s += 1
+
+    def send_message2wechat(self, sendkey: str, title: str, desp: str) -> None:
+        for i in range(10):
+            try:
+                url = f"https://sctapi.ftqq.com/{sendkey}.send?title=short_title&desp=long_content"
+                data = {
+                    "title": title,
+                    "desp": desp
+                }
+                r = requests.post(url=url, data=data, timeout=200)
+                res_dict = r.json()
+                if res_dict["code"] == 0:
+                    break
+            except Exception:
+                pass
+
 
 if __name__ == "__main__":
-    # t = Toolbox()
-    df = pd.read_csv("../Data/CSV/Binary/BMV772.csv", header=0)
-    # r = t.stave2action(df, t.operator)
-    s0 = [1,0,1,0]
-    a  = [1,1,0,0]
-    s1 = [0,1,1,0]
-
+    t = Toolbox()
+    sendkey = "SCT24962TQxjKHCE8uSNsj16GD2Vij6Dm"
+    title = "PyCharm"
+    desp = "Model Train Finished"
+    t.send_message2wechat(sendkey, title, desp)
